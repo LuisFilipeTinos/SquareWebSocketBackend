@@ -29,17 +29,20 @@ io.on('connection', (socket) => {
 
   console.log('Novo usuário conectado')
 
-  socket.on('join', (name) => {
+    socket.on('join', (name) => {
     users[id] = {
-      id,
-      name,
-      x: Math.random() * 300,
-      y: Math.random() * 500
+        id,
+        name,
+        x: 50,
+        y: 100
     }
 
     socket.userId = id
+
+    socket.emit('me', id)
+
     broadcast()
-  })
+    })
 
   socket.on('move', ({ x, y }) => {
     const user = users[socket.userId]
