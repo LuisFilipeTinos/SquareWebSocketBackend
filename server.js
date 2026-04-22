@@ -1,4 +1,3 @@
-
 import http from "http";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
@@ -18,31 +17,32 @@ const io = new Server(server, {
   }
 })
 
-let users = {}
+let users = []
 
 function broadcast() {
-  io.emit('update', Object.values(users))
+  io.emit('update', users)
 }
 
 io.on('connection', (socket) => {
   console.log('Conectou:', socket.id)
 
   socket.on('join', (name) => {
-    users[socket.id] = {
+    users.push({
       id: socket.id,
       name,
       x: 50,
       y: 100
-    }
+    })
 
     // Envia o próprio ID do socket
-    socket.emit('me', socket.id)
+    socket.emit('player', socket.id)
 
     broadcast()
   })
 
   socket.on('move', ({ x, y }) => {
-    const user = users[socket.id]
+    const user = users.find(u => u.id === socket.id)
+
     if (!user) return
 
     user.x = x
@@ -53,7 +53,10 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('Saiu:', socket.id)
-    delete users[socket.id]
+
+    // Remove o usuário do array
+    users = users.filter(u => u.id !== socket.id)
+
     broadcast()
   })
 })
