@@ -3,6 +3,7 @@ import http from "http";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 import express from "express";
+import cors from "cors";
 
 dotenv.config();
 
