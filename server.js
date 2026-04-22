@@ -25,27 +25,24 @@ function broadcast() {
 }
 
 io.on('connection', (socket) => {
-  const id = uuidv4()
+  console.log('Conectou:', socket.id)
 
-  console.log('Novo usuário conectado')
-
-    socket.on('join', (name) => {
-    users[id] = {
-        id,
-        name,
-        x: 50,
-        y: 100
+  socket.on('join', (name) => {
+    users[socket.id] = {
+      id: socket.id,
+      name,
+      x: 50,
+      y: 100
     }
 
-    socket.userId = id
-
-    socket.emit('me', id)
+    // Envia o próprio ID do socket
+    socket.emit('me', socket.id)
 
     broadcast()
-    })
+  })
 
   socket.on('move', ({ x, y }) => {
-    const user = users[socket.userId]
+    const user = users[socket.id]
     if (!user) return
 
     user.x = x
@@ -55,11 +52,9 @@ io.on('connection', (socket) => {
   })
 
   socket.on('disconnect', () => {
-    if (socket.userId) {
-      delete users[socket.userId]
-      broadcast()
-    }
-    console.log('Usuário desconectado')
+    console.log('Saiu:', socket.id)
+    delete users[socket.id]
+    broadcast()
   })
 })
 
